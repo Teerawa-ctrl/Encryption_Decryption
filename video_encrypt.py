@@ -1,6 +1,6 @@
 # video_encryption.py
 import cv2
-from test_encrypt import encrypt_AES, decrypt_AES
+from encrypt import encrypt_AES, decrypt_AES
 import numpy as np
 
 def encrypt_video(input_file_path, output_file_path, password):
