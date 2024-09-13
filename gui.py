@@ -4,7 +4,9 @@ from tkinter import messagebox , ttk
 from utils import open_file, save_file
 from encrypt import encrypt_AES, decrypt_AES
 from video_encrypt import encrypt_video, decrypt_video
+import cv2
 import re
+import numpy as np
 
 def check_password_strength(password):
     if len(password) < 8:
@@ -34,12 +36,31 @@ def encrypt_image():
 def decrypt_image():
     file_path = open_file()
     if file_path:
-        with open(file_path, "rb") as f:
-            encrypted_data = f.read()
-        password = password_entry.get()
-        decrypted_data = decrypt_AES(encrypted_data, password)
-        save_file(decrypted_data, file_path.replace(".enc", "_decrypted"))
-        messagebox.showinfo("Success", "Image decrypted successfully!")
+        try:
+            # อ่านข้อมูลไฟล์ที่เข้ารหัส
+            with open(file_path, "rb") as f:
+                encrypted_data = f.read()
+            
+            password = password_entry.get()
+
+            # ถอดรหัสข้อมูล
+            decrypted_data = decrypt_AES(encrypted_data, password)
+            image_np = np.frombuffer(decrypted_data, np.uint8)
+            
+            # แปลงข้อมูลเป็นรูปภาพ
+            image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
+
+            if image is None:
+                raise ValueError("ไม่สามารถถอดรหัสภาพได้")
+
+            # แสดงภาพที่ถอดรหัส
+            cv2.imshow("Decrypted Image", image)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+        except Exception as e:
+            # แจ้งเตือนข้อผิดพลาดเมื่อการถอดรหัสภาพไม่สำเร็จ
+            messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสภาพได้")
 
 def encrypt_video_file():
     file_path = open_file()
@@ -52,13 +73,20 @@ def encrypt_video_file():
 def decrypt_video_file():
     file_path = open_file()
     if file_path:
-        if file_path.endswith(".enc"):
-            output_path = file_path.replace(".enc", "_decrypted.mp4")
-        else:
-            output_path = file_path + "_decrypted.mp4"
-        password = password_entry.get()
-        decrypt_video(file_path, output_path, password)
-        messagebox.showinfo("Success", "Video decrypted successfully!")
+        try:
+            if file_path.endswith(".enc"):
+                output_path = file_path.replace(".enc", "_decrypted.mp4")
+            else:
+                output_path = file_path + "_decrypted.mp4"
+            password = password_entry.get()
+            
+            # ถอดรหัสวิดีโอ
+            decrypt_video(file_path, output_path, password)
+            messagebox.showinfo("Success", "Video decrypted successfully!")
+        
+        except Exception as e:
+            # แจ้งเตือนข้อผิดพลาดเมื่อการถอดรหัสวิดีโอไม่สำเร็จ
+            messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสวิดีโอได้")
 
 def create_gui():
     root = tk.Tk()
