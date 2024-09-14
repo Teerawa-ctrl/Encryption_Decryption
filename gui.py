@@ -1,12 +1,14 @@
 # gui.py
-import tkinter as tk
-from tkinter import messagebox , ttk
+import tkinter as tk 
+from tkinter import messagebox , ttk , filedialog
+from PIL import Image, ImageTk
 from utils import open_file, save_file
 from encrypt import encrypt_AES, decrypt_AES
 from video_encrypt import encrypt_video, decrypt_video
 import cv2
 import re
 import numpy as np
+
 
 def check_password_strength(password):
     if len(password) < 8:
@@ -68,10 +70,13 @@ def encrypt_video_file():
         output_path = file_path + ".enc"
         password = password_entry.get()
         encrypt_video(file_path, output_path, password)
-        messagebox.showinfo("Success", "Video encrypted successfully!")
+        messagebox.showinfo("Success", "เข้ารหัสภาพสำเร็จ!")
+        
 
+
+# ฟังก์ชันสำหรับการถอดรหัสวิดีโอ
 def decrypt_video_file():
-    file_path = open_file()
+    file_path = filedialog.askopenfilename(filetypes=[("Encrypted Video Files", "*.enc")])
     if file_path:
         try:
             if file_path.endswith(".enc"):
@@ -79,13 +84,10 @@ def decrypt_video_file():
             else:
                 output_path = file_path + "_decrypted.mp4"
             password = password_entry.get()
-            
-            # ถอดรหัสวิดีโอ
             decrypt_video(file_path, output_path, password)
-            messagebox.showinfo("Success", "Video decrypted successfully!")
+            messagebox.showinfo("Success", "เข้ารหัสวีดีโอสำเร็จ!")
         
         except Exception as e:
-            # แจ้งเตือนข้อผิดพลาดเมื่อการถอดรหัสวิดีโอไม่สำเร็จ
             messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสวิดีโอได้")
 
 def create_gui():
