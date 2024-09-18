@@ -15,14 +15,14 @@ def encrypt_AES(data, password):
     """
     salt = os.urandom(16)
     kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
+        algorithm=hashes.SHA256(), #ช้ SHA256 เป็นอัลกอริทึมในการแฮช
+        length=32, ## กำหนดให้สร้างคีย์ที่มีความยาว 32 ไบต์ (256 บิต)
         salt=salt,
         iterations=100000,
         backend=default_backend()
     )
-    key = kdf.derive(password.encode())
-    iv = os.urandom(16)
+    key = kdf.derive(password.encode())# สร้างคีย์จากรหัสผ่าน
+    iv = os.urandom(16) #สร้างค่า IV (Initialization Vector) ขนาด 16 ไบต์
     cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
     encryptor = cipher.encryptor()
     encrypted_data = encryptor.update(data) + encryptor.finalize()
