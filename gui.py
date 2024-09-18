@@ -71,7 +71,7 @@ def encrypt_video_file():
         output_path = file_path + ".enc"
         password = password_entry.get()
         encrypt_video(file_path, output_path, password)
-        messagebox.showinfo("Success", "เข้ารหัสภาพสำเร็จ!")
+        messagebox.showinfo("Success", "เข้ารหัสวีดีโอสำเร็จ!")
         
 
 
