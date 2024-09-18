@@ -39,30 +39,31 @@ def decrypt_image():
     file_path = open_file()
     if file_path:
         try:
-            # อ่านข้อมูลไฟล์ที่เข้ารหัส
+            # Read the encrypted file
             with open(file_path, "rb") as f:
                 encrypted_data = f.read()
             
             password = password_entry.get()
 
-            # ถอดรหัสข้อมูล
+            # Decrypt the data
             decrypted_data = decrypt_AES(encrypted_data, password)
-            image_np = np.frombuffer(decrypted_data, np.uint8)
             
-            # แปลงข้อมูลเป็นรูปภาพ
+            # Verify decryption by checking the image data
+            image_np = np.frombuffer(decrypted_data, np.uint8)
             image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
 
+            # If the decryption fails (invalid image data)
             if image is None:
-                raise ValueError("ไม่สามารถถอดรหัสภาพได้")
+                raise ValueError("Incorrect password or corrupted file")
 
-            # แสดงภาพที่ถอดรหัส
+            # Display the decrypted image
             cv2.imshow("Decrypted Image", image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
         except Exception as e:
-            # แจ้งเตือนข้อผิดพลาดเมื่อการถอดรหัสภาพไม่สำเร็จ
-            messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสภาพได้")
+            # Show an error message if decryption fails
+            messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสภาพได้: รหัสผ่านไม่ถูกต้องหรือไฟล์เสียหาย")
 
 def encrypt_video_file():
     file_path = open_file()
@@ -79,16 +80,23 @@ def decrypt_video_file():
     file_path = filedialog.askopenfilename(filetypes=[("Encrypted Video Files", "*.enc")])
     if file_path:
         try:
+            password = password_entry.get()
             if file_path.endswith(".enc"):
                 output_path = file_path.replace(".enc", "_decrypted.mp4")
             else:
                 output_path = file_path + "_decrypted.mp4"
-            password = password_entry.get()
+
+            # Attempt to decrypt the video
             decrypt_video(file_path, output_path, password)
-            messagebox.showinfo("Success", "เข้ารหัสวีดีโอสำเร็จ!")
-        
+
+            # Verify that the output video file is valid
+            if not cv2.VideoCapture(output_path).isOpened():
+                raise ValueError("Incorrect password or corrupted file")
+            
+            messagebox.showinfo("Success", "ถอดรหัสวิดีโอสำเร็จ!")
+
         except Exception as e:
-            messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสวิดีโอได้")
+            messagebox.showerror("Decrypt Error", "ไม่สามารถถอดรหัสวิดีโอได้: รหัสผ่านไม่ถูกต้องหรือไฟล์เสียหาย")
 
 def create_gui():
     root = tk.Tk()
